@@ -1,0 +1,31 @@
+name: multi_channel_report_plugin
+description: Flutter multi-channel attribution reporting for Android, iOS and OpenHarmony.
+version: 0.0.1
+publish_to: none
+
+environment:
+  sdk: '>=3.10.0 <4.0.0'
+  flutter: '>=3.38.1'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  android_id: ^0.5.2+1
+  app_tracking_transparency: ^2.0.7
+  dio: ^5.11.1
+  # 获取设备信息
+  device_info_plus: ^13.3.0
+  device_info_plus_harmonyos: ^13.3.0
+  fk_user_agent:
+    path: third_party/fk_user_agent
+  fk_user_agent_ohos:
+    git:
+      url: https://gitcode.com/openharmony-sig/fluttertpc_fk_user_agent.git
+      ref: 2.1.0-ohos-1.0.1
+      path: ohos
+  flutter_oaid:
+    path: third_party/flutter_oaid
+  flutter_udid:
+    git:
+      url: https://gitcode.com/CPF-Flutter/fluttertpc_flutter_udid.git
+      ref: 4.1.1-ohos-1.0.0
