@@ -10,7 +10,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  android_id: ^0.5.2+1
   app_tracking_transparency: ^2.0.7
   dio: ^5.11.1
   # 获取设备信息
@@ -23,8 +22,7 @@ dependencies:
       url: https://gitcode.com/openharmony-sig/fluttertpc_fk_user_agent.git
       ref: 2.1.0-ohos-1.0.1
       path: ohos
-  flutter_oaid:
-    path: third_party/flutter_oaid
+  android_cn_oaid: ^0.0.2
   flutter_udid:
     git:
       url: https://gitcode.com/CPF-Flutter/fluttertpc_flutter_udid.git

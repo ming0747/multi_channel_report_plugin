@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
-
-import 'package:android_id/android_id.dart';
+import 'package:android_cn_oaid/android_cn_oaid.dart';
 import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:device_info_plus_harmonyos/device_info_plus_harmonyos.dart'
@@ -9,7 +8,6 @@ import 'package:device_info_plus_harmonyos/device_info_plus_harmonyos.dart'
 import 'package:dio/dio.dart';
 import 'package:fk_user_agent/fk_user_agent.dart';
 import 'package:fk_user_agent_ohos/fk_user_agent_ohos.dart';
-import 'package:flutter_oaid/flutter_oaid.dart';
 import 'package:flutter_udid/flutter_udid.dart';
 
 enum ReportEvent { activation, register, pay }
@@ -149,12 +147,20 @@ class ReportUtil {
     return _osName;
   }
 
+  static Future<String> _getAndroidIdValue() async{
+    final plugin = AndroidCnOaid();
+    // 用户同意隐私政策后调用
+    await plugin.register();
+    final androidId = await plugin.getAndroidID(); // String? — 可能为 null
+    return androidId ?? "";
+  }
+
+
   static Future<String> _getUdid() async {
     if (_udid.isEmpty) {
       String udid = "";
       if (Platform.isAndroid) {
-        const androidIdPlugin = AndroidId();
-        udid = await androidIdPlugin.getId() ?? "";
+        udid = await _getAndroidIdValue();
       } else if (Platform.isIOS) {
         IosDeviceInfo deviceInfo = await DeviceInfoPlugin().iosInfo;
         udid = deviceInfo.identifierForVendor ?? "";
@@ -167,13 +173,16 @@ class ReportUtil {
     return _udid;
   }
 
+
+
+
+
   static Future<String> _getAndroidId() async {
     if (_androidId.isEmpty) {
       String androidId = "";
       DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
       if (Platform.isAndroid) {
-        const androidIdPlugin = AndroidId();
-        androidId = await androidIdPlugin.getId() ?? "";
+        androidId = await _getAndroidIdValue();
       } else if (Platform.isIOS) {
         IosDeviceInfo deviceInfo = await deviceInfoPlugin.iosInfo;
         androidId = deviceInfo.identifierForVendor ?? "";
@@ -189,8 +198,7 @@ class ReportUtil {
     if (_odid.isEmpty) {
       String odid = "";
       if (Platform.isAndroid) {
-        const androidIdPlugin = AndroidId();
-        odid = await androidIdPlugin.getId() ?? "";
+        odid = await _getAndroidIdValue();
       } else if (Platform.isIOS) {
         IosDeviceInfo deviceInfo = await DeviceInfoPlugin().iosInfo;
         odid = deviceInfo.identifierForVendor ?? "";
@@ -229,8 +237,7 @@ class ReportUtil {
       String idfv = "";
       DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
       if (Platform.isAndroid) {
-        const androidIdPlugin = AndroidId();
-        idfv = await androidIdPlugin.getId() ?? "";
+        idfv = await _getAndroidIdValue();
       } else if (Platform.isIOS) {
         IosDeviceInfo deviceInfo = await deviceInfoPlugin.iosInfo;
         idfv = deviceInfo.identifierForVendor ?? "";
@@ -246,9 +253,25 @@ class ReportUtil {
     if (_oaid.isEmpty) {
       String oaid = "";
       if (Platform.isAndroid) {
-        final FlutterOaid oaidPlugin = FlutterOaid();
-        await oaidPlugin.register();
-        oaid = await oaidPlugin.getOaid() ?? "";
+        final plugin = AndroidCnOaid();
+        // 用户同意隐私政策后调用
+        await plugin.register();
+        final supported = await plugin.isSupported();
+        if (!supported) {
+          // 当前设备不支持 OAID 或 AAID
+          print("当前设备不支持 OAID 或 AAID");
+          oaid = "";
+        }else{
+          try {
+            // 自动选择最优方式获取
+            oaid = await plugin.getOAID() ?? "";
+            print('OAID: $oaid');
+
+          } on OaidException catch (e) {
+            print('获取OAID错误 [${e.code}]: ${e.message}');
+          }
+        }
+
       } else if (Platform.isIOS) {
         oaid = "";
       } else if (isHarmonyOS) {
