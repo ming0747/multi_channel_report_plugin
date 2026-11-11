@@ -289,6 +289,8 @@ class ReportUtil {
   static Future requestReport(ReportEvent event, String baseUrl) async {
     String url = reportUrl(event, baseUrl);
 
+    print("【ReportUtil 上报地址】：$url");
+
     int retryCount = 5; // 5
 
     for (int i = 0; i < retryCount; i++) {
