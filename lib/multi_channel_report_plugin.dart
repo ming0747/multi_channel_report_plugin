@@ -50,22 +50,23 @@ class ReportUtil {
     required String appid,
     required String channelName,
     required String versionName,
-    required String userUniqueId,
   }) async {
     _ztReportBaseUrl = ztReportBaseUrl;
     _myReportBaseUrl = myReportBaseUrl;
-    _userUniqueId = userUniqueId;
     _versionName = versionName;
     _channelName = channelName;
     _appid = appid;
   }
 
   static Future report(ReportEvent event, {
+    required String userUniqueId,
     String? vipName,
     String? amount,
     String? payMethod,
     String? productType
   }) async {
+
+    _userUniqueId = userUniqueId;
 
     if ((vipName ?? "").isNotEmpty) {
       _vipName = vipName!;
@@ -84,14 +85,18 @@ class ReportUtil {
     }
 
     _getOsName();
-    await _getUdid();
-    await _getAndroidId();
-    await _getOdid();
-    await _getIdfa();
-    await _getIdfv();
-    await _getOaid();
-    await _getDeviceModel();
-    await _getUserAgent();
+    await Future.wait(
+      <Future<void>>[
+        _getUdid(),
+        _getAndroidId(),
+        _getOdid(),
+        _getIdfa(),
+        _getIdfv(),
+        _getOaid(),
+        _getDeviceModel(),
+        _getUserAgent(),
+      ]
+    );
     requestReport(event, _ztReportBaseUrl);
     requestReport(event, _myReportBaseUrl);
   }
