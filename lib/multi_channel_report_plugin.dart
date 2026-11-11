@@ -56,15 +56,16 @@ class ReportUtil {
     _appid = appid;
   }
 
+  static Future setUserUniqueId({required String userUniqueId}) async {
+    _userUniqueId = userUniqueId;
+  }
+
   static Future report(ReportEvent event, {
-    required String userUniqueId,
     String? vipName,
     String? amount,
     String? payMethod,
     String? productType
   }) async {
-
-    _userUniqueId = userUniqueId;
 
     if ((vipName ?? "").isNotEmpty) {
       _vipName = vipName!;
@@ -155,7 +156,6 @@ class ReportUtil {
     return androidId ?? "";
   }
 
-
   static Future<String> _getUdid() async {
     if (_udid.isEmpty) {
       String udid = "";
@@ -172,10 +172,6 @@ class ReportUtil {
     }
     return _udid;
   }
-
-
-
-
 
   static Future<String> _getAndroidId() async {
     if (_androidId.isEmpty) {
