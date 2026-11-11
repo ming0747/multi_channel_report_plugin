@@ -1,50 +1,45 @@
 # multi_channel_report_plugin
 
-提供 Android、iOS 和 OpenHarmony 的激活、注册和支付事件上报。Dart 接口为 `ReportUtil`。Android OAID 和 User-Agent 依赖放在 `third_party/`。
+支持 Android、iOS 和 OpenHarmony 的激活、注册和支付上报。要求 Flutter 3.38.1、Dart 3.10 或更高版本。
 
-## 本地接入
+## 安装
 
-在宿主 App 的 `pubspec.yaml` 里添加依赖。下面假设宿主与本项目在同一个父目录下。
+在宿主 App 的 `pubspec.yaml` 中添加 Git 依赖。
 
 ```yaml
 dependencies:
   multi_channel_report_plugin:
-    path: ../multi_channel_report_plugin
+    git:
+      url: https://github.com/ming0747/multi_channel_report_plugin.git
+      ref: main
 ```
 
-运行 `flutter pub get` 后，在 App 中使用。
+首次接入运行 `flutter pub get`。已接入的项目可运行 `flutter pub upgrade multi_channel_report_plugin` 拉取更新。
+
+## 上报
+
+用户同意隐私政策后，先用 `setParams` 配置上报地址和应用信息。每次上报时传入当前用户的 `userUniqueId`。
 
 ```dart
 import 'package:multi_channel_report_plugin/multi_channel_report_plugin.dart';
 
-Future<void> reportActivation(String userId) async {
+Future<void> initReporting() async {
   await ReportUtil.setParams(
     ztReportBaseUrl: 'https://example.com/attribution',
     myReportBaseUrl: 'https://example.com/report',
     appid: 'your-app-id',
     channelName: 'your-channel',
     versionName: '1.0.0',
-    userUniqueId: userId,
   );
+}
 
-  await ReportUtil.report(ReportEvent.activation);
+Future<void> reportActivation(String userId) async {
+  await ReportUtil.report(ReportEvent.activation, userUniqueId: userId);
 }
 ```
 
-在 Flutter 完成初始化后调用 `report`。它读取设备信息并启动两路 GET 请求。接口应返回 JSON 对象，`code` 为 `0` 或 `1000` 表示成功。
+注册用 `ReportEvent.register`，支付用 `ReportEvent.pay`。支付可附带 `vipName`、`amount`、`payMethod` 和 `productType`，值为字符串。
 
-Android 宿主需在主 Manifest 中声明 `android.permission.INTERNET`。iOS 宿主需在 `ios/Runner/Info.plist` 设置 `NSUserTrackingUsageDescription`，用于系统跟踪授权提示。OpenHarmony 使用支持 OHOS 的 Flutter SDK。
+两路上报均使用 GET。接口返回的 JSON 中，`code` 为 `0`、`1000` 或 `200` 时表示成功。
 
-设备信息依赖要求 Flutter 3.38.1 和 Dart 3.10 或更高版本。Android 和 iOS 通过 `device_info_plus` 读取设备信息，OpenHarmony 通过 `device_info_plus_harmonyos` 读取型号和 ODID。
-
-## GitHub 接入
-
-推送仓库后，可以把上面的本地依赖换成 Git 依赖。将 URL 和 `ref` 换成你的仓库地址和版本标签。
-
-```yaml
-dependencies:
-  multi_channel_report_plugin:
-    git:
-      url: https://github.com/YOUR_GITHUB_NAME/multi_channel_report_plugin.git
-      ref: v0.0.1
-```
+Android 宿主需声明 `android.permission.INTERNET`。iOS 宿主需在 `Info.plist` 设置 `NSUserTrackingUsageDescription`。OpenHarmony 需使用支持 OHOS 的 Flutter SDK。
