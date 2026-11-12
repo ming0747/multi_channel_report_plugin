@@ -311,6 +311,10 @@ class ReportUtil {
 
   /// 请求上报
   static Future requestReport(ReportEvent event, String baseUrl) async {
+    if (baseUrl.trim().isEmpty) {
+      return;
+    }
+
     String url = reportUrl(event, baseUrl);
 
     print("【ReportUtil 上报地址】：$url");
